@@ -65,6 +65,10 @@ function executeDbImport {
   fi
 }
 
+function executeDbDrop {
+  dbName="$1"
+  docker exec "${env_data[DB_CONTAINER]}" mysql -u "${env_data[DB_USER]}" -p"${env_data[DB_ROOT_PASSWORD]}" -e "drop database $dbName"
+}
 function executeDbCreate {
   dbName="$1"
   docker exec "${env_data[DB_CONTAINER]}" mysql -u "${env_data[DB_USER]}" -p"${env_data[DB_ROOT_PASSWORD]}" -e "create database $dbName"
@@ -86,14 +90,17 @@ function createDatabase {
     return
   fi
   echo "DB: $dbName already exists in DB ${site_data[DB_HOST]}"
-  echo "Do you want to create another database? [y|n]"
-  read createNewDbQuestion
+  echo "Dropping db: $dbName..."
+  # echo "Do you want to create another database? [y|n]"
+  # read createNewDbQuestion
 
-  if [ "$createNewDbQuestion" == "y" ]; then
-    echo "Enter a new DB name:"
-    read dbName
-    executeDbCreate "$dbName"
-  fi
+  # if [ "$createNewDbQuestion" == "y" ]; then
+  #   echo "Enter a new DB name:"
+  #   read dbName
+  #   executeDbCreate "$dbName"
+  # fi
+  executeDbDrop "$dbName"
+  executeDbCreate "$dbName"
 }
 
 
